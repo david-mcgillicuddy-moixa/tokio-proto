@@ -60,7 +60,7 @@ impl<P, T, B> BindClient<StreamingPipeline<B>, T> for P where
     type BindClient = ClientProxy<Self::ServiceRequest, Self::ServiceResponse, Self::ServiceError>;
 
     fn bind_client<E>(&self, executor: &E, io: T) -> Self::BindClient
-        where E: Executor<Box<Future<Item = (), Error = ()>>>
+        where E: Executor<Box<dyn Future<Item = (), Error = ()>>>
     {
         let (client, rx) = client_proxy::pair();
 
@@ -119,7 +119,8 @@ impl<P, T, B> super::advanced::Dispatch for Dispatch<P, T, B> where
         if let Some(complete) = self.in_flight.pop_front() {
             drop(complete.send(response));
         } else {
-            return Err(io::Error::new(io::ErrorKind::Other, "request / response mismatch"));
+            // return Err(io::Error::new(io::ErrorKind::Other, "request / response mismatch"));
+            warn!("request / response mismatch");
         }
 
         Ok(())
